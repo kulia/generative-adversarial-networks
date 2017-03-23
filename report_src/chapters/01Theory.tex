@@ -25,14 +25,35 @@ A shallow network contains fewer, if any, hidden layers. It can represent all fu
 \end{figure}
 
 
-\subsection{}
+\subsection{Logistic regression as neural network}
 
-\begin{subfigure}
+One can define the logistic regression implemented in Assignment 1 \cite{assignment1} as a neural network, where we have one hidden layer with one neuron. One first define the input to the neuron as
+\begin{equation}
+	z = h(\mbf{x}) =\mbf{w}^{\rm T} \mbf{x}
+\end{equation}
+The activation function is then defined as
+\begin{equation}
+	\sigma(z)=\frac{1}{1+e^{-z}}
+\end{equation}
+and the backpropagation algorithm is then
+\begin{equation}
+	\frac{\partial E_{\rm ec}(\mathbf{w})}{\partial \mathbf{w}} = 
+		\frac{\partial E_{\rm ec}(\mathbf{w})}{\partial \sigma(z)}
+		\cdot \frac{\partial \sigma(z)}{\partial z}
+		\cdot \frac{\partial z}{\partial \mathbf{w}}
+\end{equation}
+The training will then be
+\begin{equation}
+	\mbf{w}(k+1) \leftarrow \mbf{w}(k) - \eta \sum_{i=1}^{N}(\sigma(z)-y_i)\mbf{x}_i
+\end{equation}
+The topology of the network is shown in \autoref{fig:log_example}.
+
+\begin{figure}
 	\centering
     \includegraphics[height=3cm]{figures/theory/log_network}
-    \caption{Example of a deep network}
+    \caption{Example of a logistic regression neural network}
     \label{fig:log_example}
-\end{subfigure}
+\end{figure}
 
 
 \end{document}
