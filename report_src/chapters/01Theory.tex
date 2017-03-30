@@ -105,4 +105,25 @@ where $C_1^2 x_j^2$ and $- \big(C_1x_jy_j+C_1C_2x_j)$ are constant with respect 
 	\frac{\partial E}{\partial w_j} = K_1 w_j + K_2
 \end{equation}
 Aforementioned implies that any transition through any node will be linear. A cascade of linear operations always results in a linear system, leading to the transfer function of the neural network to be linear as well.
+
+%----------------------------
+%		Task 1.3
+%----------------------------
+\subsection{Forward Pass for Network Topology}
+
+The first layer $\mbf{u}$ is given by
+\begin{equation}
+	\mbf{u} = \sigma(\mbf{W}^{(1)\rm T} \mbf{x}) = \vari{x_1}
+\end{equation}
+and the second layer will be
+\begin{equation}
+	\mbf{v} = \sigma( \mbf{W}^{(2)\rm T} \mbf{u}) =\vari{x_2}
+\end{equation}
+resulting in the output value
+\begin{equation}
+	\mbf{y}=\mbf{W}^{(3)\rm T}\sigma(\mbf{v}) = \vari{x_3}
+\end{equation}
+The values have been calculated using an attached python module.
+
+
 \end{document}

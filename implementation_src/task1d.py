@@ -17,4 +17,5 @@ def task1d():
         x_i = lr.compute_layer(x_i, W_i, lr.sigmoid)
 
         iterator += 1
-        latex_helpers.write_variable_to_latex(np.round_(x_i, decimals=2), 'x_{}'.format(iterator), var_latex_path)
+        print(np.round_(x_i, decimals=2))
+        latex_helpers.write_variable_to_latex(np.round_(x_i.T, decimals=2), 'x_{}'.format(iterator), var_latex_path)
