@@ -58,3 +58,58 @@ def plot_data(fig, ax, x, y, y_hat=None):
 
     if not y_hat is None:
         ax.scatter(x1, x2, c=y_hat, cmap=cm.jet, alpha=0.5)
+
+def load_mnist_tf(path='./mnist'):
+    """Download and return the MNIST dataset using TensorFlow.
+
+    Parameter
+    ---------
+    path : str
+        The location of where you would like the download MNIST.
+    """
+    from tensorflow.examples.tutorials.mnist import input_data
+    return input_data.read_data_sets(path, one_hot=True)
+
+
+def create_dir(path):
+    """Ensure that the input path points to an existing directory.
+
+    Parameter
+    ---------
+    path : str
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+def plot_samples(samples):
+    """Return a plot of the input samples in a grid.
+
+    The number of samples and sample size must be divisible by 2.
+
+    Parameter
+    ---------
+    samples : numpy.ndarray
+        Must have exactly two dimensions. The first is the sample
+        number, while the second is the sample itself (a vector of
+        numbers).
+    """
+    assert samples.shape[0] % 2 == 0,\
+        ('Number of samples is not divisible by 2.')
+    assert len(samples[0]) % 2 == 0,\
+        ('Sample size is not divisible by 2.')
+
+    grid_size = int(np.sqrt(samples.shape[0]))
+    img_size = int(np.sqrt(len(samples[0])))
+
+    figure = plt.figure(figsize=(grid_size, grid_size))
+    grid = matplotlib.gridspec.GridSpec(grid_size, grid_size)
+    grid.update(hspace=0.1, wspace=0.1)
+
+    for idx, sample in enumerate(samples):
+        ax = plt.subplot(grid[idx])
+        ax.get_xaxis().set_ticks([])
+        ax.get_yaxis().set_ticks([])
+        ax.imshow(sample.reshape(img_size, img_size), cmap=plt.cm.gray)
+
+    return figure

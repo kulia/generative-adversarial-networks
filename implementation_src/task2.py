@@ -5,17 +5,24 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 import helpers
+from latex_helpers import write_variable_to_latex
+
 
 default_path = '../data/{}.csv'
 train_path = default_path.format('cl-test')
 test_path = default_path.format('cl-test')
-batch_size_test = 10
+batch_size_test = 1
+
+path_to_figure = '../report_src/figures/mlp/'
+var_latex_path = '../report_src/variables/'
 
 def task2():
 
     model = Model(train_path, test_path)
 
     learning_rate = 2.0
+    write_variable_to_latex(learning_rate, 'lr', var_latex_path)
+
     optimiser, learning_curve, testing_curve = train_and_test_model(model, lr=learning_rate)
 
     visualize_results(learning_curve, testing_curve)
@@ -40,6 +47,10 @@ def visualize_results(learning_curve, testing_curve):
     # plt.title('Learning curve')
     plt.ylabel('Cross-entropy error [\%]')
     plt.xlabel('Number of epochs')
+
+    plt.subplots_adjust(left=0.13, right=0.95, top=0.92, bottom=0.16)
+
+    plt.savefig(path_to_figure + 'cross_entropy_error.pdf', format='pdf', dpi=1000)
 
 
 class Model:
