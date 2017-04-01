@@ -9,22 +9,38 @@ import helpers
 default_path = '../data/{}.csv'
 train_path = default_path.format('cl-test')
 test_path = default_path.format('cl-test')
+batch_size_test = 10
 
 def task2():
 
     model = Model(train_path, test_path)
 
     learning_rate = 2.0
-    learning_curve = train_model(model, lr=learning_rate)
+    optimiser, learning_curve, testing_curve = train_and_test_model(model, lr=learning_rate)
 
-    #Visualize
+    visualize_results(learning_curve, testing_curve)
+
+    print(model.y_hat)
+
+def visualize_results(learning_curve, testing_curve):
+    learning_curve = 100 * learning_curve
+    testing_curve = 1-testing_curve
+    testing_curve = 100 * testing_curve
+
     fig = plt.figure()
     ax1 = plt.subplot2grid((1, 1), (0, 0))
-    helpers.plot_data(fig, ax1, model.X_train, model.y_train)
 
-    fig = plt.figure()
-    ax1 = plt.subplot2grid((1, 1), (0, 0))
-    plt.plot(np.arange(len(learning_curve)), learning_curve)
+    epocs = np.arange(len(learning_curve))
+    ax1.plot(epocs, learning_curve, c='k', label='Train')
+    ax1.plot(batch_size_test*np.arange(len(testing_curve)), testing_curve, c='r', label='Test')
+    ax1.legend(prop={'family': 'Times'}, loc='lower left')
+
+    ax1.set_xlim([0, len(learning_curve)])
+
+    # plt.title('Learning curve')
+    plt.ylabel('Cross-entropy error [\%]')
+    plt.xlabel('Number of epochs')
+
 
 class Model:
     def __init__(self, train_path, test_path):
@@ -54,7 +70,7 @@ class Model:
             , 'b2': tf.Variable(tf.zeros([1]))
                 }
 
-def train_model(model, lr=10):
+def train_and_test_model(model, lr=10, nb_epochs=1000):
     # Specify which optimiser to use (`lr` is the learning rate)
     optimiser = tf.train.GradientDescentOptimizer(lr).minimize(
         model.error, var_list=model.weights.values())
@@ -63,21 +79,23 @@ def train_model(model, lr=10):
     init = tf.global_variables_initializer()
 
     learning_curve = np.array([])
+    testing_curve = np.array([])
 
     with tf.Session() as sess:
         # Initialise variables and start the session
         sess.run(init)
 
         # Run a set number of epochs
-        nb_epochs = 10000
         for epoch in range(nb_epochs):
             sess.run(optimiser, feed_dict={model.X: model.X_train, model.y: model.y_train})
 
-            error_temp = sess.run(model.error, feed_dict={model.X: model.X_train, model.y: model.y_train})
-            learning_curve = np.append(learning_curve, error_temp)
+            error_temp_train = sess.run(model.error, feed_dict={model.X: model.X_train, model.y: model.y_train})
+            learning_curve = np.append(learning_curve, error_temp_train)
 
-    return learning_curve
+            if not epoch % batch_size_test:
+                correct_prediction = tf.equal(tf.round(model.y_hat), model.y_test)
+                accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+                error_temp_test = accuracy.eval({model.X: model.X_test, model.y: model.y_test})
+                testing_curve = np.append(testing_curve, error_temp_test)
 
-
-def visualize_results():
-    pass
+    return optimiser, learning_curve, testing_curve
