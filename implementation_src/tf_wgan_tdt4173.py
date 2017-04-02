@@ -14,7 +14,13 @@ import helpers
 import matplotlib.pyplot as plt
 
 # You might want to alter the learning rate, number of epochs, and batch size
-lr = 0.00005
+batch = tf.Variable(0)
+lr= tf.train.exponential_decay(
+  0.01,                # Base learning rate.
+  batch,  # Current index into the dataset.
+  1000,          # Decay step.
+  0.95,                # Decay rate.
+  staircase=True)
 nb_epochs = 40000
 batch_size = 64
 
@@ -90,9 +96,9 @@ error_D = tf.reduce_mean(real_hat) - tf.reduce_mean(fake_hat)
 
 # Specify that we will use RMSProp (one optimiser for each model)
 optimiser_G = tf.train.RMSPropOptimizer(lr).minimize(error_G,
-    var_list=weights_G.values())
+    var_list=weights_G.values(), global_step=batch)
 optimiser_D = tf.train.RMSPropOptimizer(lr).minimize(-error_D,
-    var_list=weights_D.values())
+    var_list=weights_D.values(), global_step=batch)
 
 # Generate Op that initialises global variables in the graph
 init = tf.global_variables_initializer()
@@ -124,16 +130,16 @@ with tf.Session() as sess:
             err_G = sess.run(error_G, feed_dict={Z: z_sampler(batch_size, z_size)})
             err_D = sess.run(error_D, feed_dict={Z: z_sampler(batch_size, z_size),
                                                  X: X_batch})
-            print('Epoch: ', epoch)
+            print('Epoch: ', epoch, 'lr ', sess.run(lr))
             print('\t Generator error:\t {:.4f}'.format(err_G))
             print('\t Discriminator error:\t {:.4f}'.format(err_D))
 
         # Plot the image generated from 64 different samples to a directory
-        if path_to_images and epoch % 1000 == 0:
+        if path_to_images and epoch % 10000 == 0:
             samples = sess.run(sample, feed_dict={Z: z_sampler(64, z_size)})
 
             figure = helpers.plot_samples(samples)
-            plt.savefig('{}/{}.png'.format(path_to_images, str(epoch)),
+            plt.savefig('{}/{}.png'.format(path_to_images, str(epoch).zfill(10)),
                         bbox_inches='tight')
             plt.close()
 
