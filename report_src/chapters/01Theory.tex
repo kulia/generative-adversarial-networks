@@ -113,15 +113,15 @@ Aforementioned implies that any transition through any node will be linear. A ca
 
 The first layer $\mbf{u}$ is given by
 \begin{equation}
-	\mbf{u} = \sigma(\mbf{W}^{(1)\rm T} \mbf{x}) = \vari{x_1}
+	\mbf{u} = \sigma(\mbf{W}^{(1)\rm T} \mbf{x}) = \vari{x_1}^{\rm T}
 \end{equation}
 and the second layer will be
 \begin{equation}
-	\mbf{v} = \sigma( \mbf{W}^{(2)\rm T} \mbf{u}) =\vari{x_2}
+	\mbf{v} = \sigma( \mbf{W}^{(2)\rm T} \mbf{u}) =\vari{x_2}^{\rm T}
 \end{equation}
 resulting in the output value
 \begin{equation}
-	\mbf{y}=\mbf{W}^{(3)\rm T}\sigma(\mbf{v}) = \vari{x_3}
+	\mbf{y}=\mbf{W}^{(3)\rm T}\sigma(\mbf{v}) = \vari{x_3}^{\rm T}
 \end{equation}
 The values have been calculated using an attached python module.
 

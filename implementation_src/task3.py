@@ -57,7 +57,7 @@ def generative_adversarial_networks():
         10000,  # Decay step.
         0.99,  # Decay rate.
         staircase=True)
-    nb_epochs = 5000
+    nb_epochs = 40000
     batch_size = 64
 
     z_size = 10
