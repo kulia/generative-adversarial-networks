@@ -75,10 +75,10 @@ class Model:
         return y_hat, error
 
     def set_default_weghts(self):
-        return {'w1': tf.Variable(tf.random_uniform([2, 3], -1, 1))
-            , 'b1': tf.Variable(tf.zeros([3]))
-            , 'w2': tf.Variable(tf.random_uniform([3, 1], -1, 1))
-            , 'b2': tf.Variable(tf.zeros([1]))
+        return  { 'w1': tf.Variable(tf.random_uniform([2, 3], -1, 1))
+                , 'b1': tf.Variable(tf.zeros([3]))
+                , 'w2': tf.Variable(tf.random_uniform([3, 1], -1, 1))
+                , 'b2': tf.Variable(tf.zeros([1]))
                 }
 
 def train_and_test_model(model, lr=10, nb_epochs=1000):

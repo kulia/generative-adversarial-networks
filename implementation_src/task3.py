@@ -15,6 +15,8 @@ import helpers
 
 import matplotlib.pyplot as plt
 
+path_to_images = '../report_src/figures/wgan/'
+
 def task3():
     # You might want to alter the learning rate, number of epochs, and batch size
     batch = tf.Variable(0)
@@ -26,9 +28,6 @@ def task3():
         staircase=True)
     nb_epochs = 40000
     batch_size = 64
-
-    # Set to `None` if you do not want to write out images
-    path_to_images = './generated_images'
 
     z_size = 10
     x_size = 28 * 28
@@ -134,9 +133,6 @@ def task3():
         # Initialise variables and start the session
         sess.run(init)
 
-        if path_to_images:
-            helpers.create_dir(path_to_images)
-
         # Run a set number of epochs (default `n_critic` from the WGAN paper)
         n_critic = 5
         for epoch in range(nb_epochs):
@@ -171,3 +167,4 @@ def task3():
                 plt.savefig('{}/{}.png'.format(path_to_images, str(epoch).zfill(10)),
                             bbox_inches='tight')
                 plt.close()
+

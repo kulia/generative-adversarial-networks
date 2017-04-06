@@ -1,0 +1,61 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+    	\centering
+	    \includegraphics[width=\textwidth]{figures/wgan/generator}
+	    \caption{Neural network used for the generator network $\mbf{G}$.}
+	    \label{fig:g}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.48\textwidth}
+    	\centering
+	    \includegraphics[width=\textwidth]{figures/wgan/discriminator}
+	    \caption{Neural network used for the discriminator network $\mbf{D}$.}
+	    \label{fig:g}
+    \end{subfigure}
+    \caption{The Neural network of $\mbf{G}$ and $\mbf{D}$.}
+\end{figure}
+
+Searches for the previous implementation was used for the generator $\mbf{G}$ and discriminator $\mbf{D}$. We were inspired by the tutorial. We tried with several layers but achieved the best result with two hidden layers. The width of the first hidden layer $\mbf{u}$ was chosen to 128 \cite{tutorial-wgan}. Because the output picture has dimensions of 28 px times 28 px, the last layer $\mbf{y}$ had to be $28^2=784$. The topology of the network \mbf{G} is shown in \autoref{fig:g}. The input $\mbf{x}$ is given so that
+\begin{equation}
+    \mbf{x}(0)=[1, 0, 0, 0, 0, 0, 0, 0, 0]
+\end{equation}
+and
+\begin{equation}
+    \mbf{x}(4)=[0, 0, 0, 0, 1, 0, 0, 0, 0]
+\end{equation}
+The output $\mbf{Y_{0...9}}$ is a $28\cdot28$  picture that ideally illustrates a number coresponding to $\mbf{x}$. After several trials and errors it was decided to apply different activation functions. There are neither a matrix multiplication nor a bias correction between $\mbf{y}$ and $\mbf{Y}$, only reorganization to a picture. The activation function for $\mbf{u_{G}}$ is ReLU and Sigmoid for $\mbf{y_{G}}$.
+
+The discriminator $\mbf{D}$ is applying the opposite action. It takes a picture $\mbf{Y_{0...9}}$ as an input and then reorganizes it to $\mbf{x}$. It has only one hidden layer $\mbf{u_{D}}$ of width 128. The discriminator $\mbf{D}$ uses the activation function ReLU. 
+
+The discriminator $\mbf{D}$ is trained on the MNIST dataset five times for each time the generator $\mbf{G}$ train against $\mbf{G}$. It's important to use a sufficiently small number of training of $\mbf{D}$ for each time $\mbf{G}$ is trained. If this number is too large, then $\mbf{G}$ will not be able to improve as $\mbf{D}$ will discard all attempts by $\mbf{G}$. The initial learning rate applied was chosen to
+\begin{equation}
+	\alpha_0 = 1 \cdot 10^{-4}
+\end{equation}
+The learning rate then decay exponentially so that
+\begin{equation}
+	\alpha(i)= \alpha_0 \cdot 0.99^{\frac{\rm i}{1000}}
+\end{equation}
+where $i$ is the epoch index and is increasing by 1 for each iteration. The batch size is 64. The final results for epochs of 100 and 40 000 is shown in \autoref{fig:pix}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+    	\centering
+	    \includegraphics[width=\textwidth]{figures/wgan/0000000000}
+	    \caption{The output image of generator network $\mbf{G}$ after 100 epochs.}
+	    \label{fig:100epochs}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.48\textwidth}
+    	\centering
+        \includegraphics[width=\textwidth]{figures/wgan/0000039000}
+        \caption{The output image of the generator network $\mbf{G}$ after 40 000 epochs.}
+        \label{fig:lastepochs}
+    \end{subfigure}
+    \caption{The output of a neural network $\mbf{G}$ that generates digits based on Generative Adversarial Networks.} \label{fig:pix}
+\end{figure}
+
+\end{document}
