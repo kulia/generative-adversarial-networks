@@ -6,6 +6,8 @@
 #
 import sys
 
+import sys
+
 import numpy as np
 import tensorflow as tf
 
@@ -15,7 +17,13 @@ import matplotlib.pyplot as plt
 
 def task3():
     # You might want to alter the learning rate, number of epochs, and batch size
-    lr = 0.00005
+    batch = tf.Variable(0)
+    lr = tf.train.exponential_decay(
+        1e-4,  # Base learning rate.
+        batch,  # Current index into the dataset.
+        10000,  # Decay step.
+        0.99,  # Decay rate.
+        staircase=True)
     nb_epochs = 40000
     batch_size = 64
 
@@ -23,15 +31,21 @@ def task3():
     path_to_images = './generated_images'
 
     z_size = 10
-    x_size = 28*28
-
+    x_size = 28 * 28
+    h_size = 128
 
     # Defined at the top because we need it for initialising weights
     def create_weights(shape):
         # See paper by Xavier Glorot and Yoshua Bengio for more information:
         # "Understanding the difficulty of training deep feedforward neural networks"
         # We employ the Caffe version of the initialiser: 1/(in degree)
-        return tf.random_normal(shape, stddev=1/shape[0])
+        in_dim = shape[0]
+        xavier_dev = 1. / tf.sqrt(in_dim / 2.)
+        v = tf.random_normal(shape=shape, stddev=xavier_dev)
+        return tf.Variable(v)
+
+    def create_w1(shape):
+        return tf.Variable(tf.random_normal(shape, stddev=1))
 
     #
     # Creation of generator and discriminator networks START here
@@ -42,24 +56,37 @@ def task3():
     # Define weight matrices for the generator
     # Note: Input of the first layer *must* be `z_size` and the output of the
     # *last* layer must be `x_size`
-    weights_G = {'w1': tf.Variable(create_weights((z_size, x_size)))}
+    weights_G = {
+        'w1': create_weights((z_size, h_size)),
+        'b1': tf.Variable(tf.zeros(shape=[h_size])),
+        'w2': create_weights((h_size, x_size)),
+        'b2': tf.Variable(tf.zeros(shape=[784])),
+    }
 
     def generator(z, weights):
         z1 = tf.matmul(z, weights['w1'])
-        out = tf.nn.sigmoid(z1)
+        h1 = tf.nn.relu(z1 + weights['b1'])
 
-        # Return model and weight matrices
+        z2 = tf.matmul(h1, weights['w2'])
+        out = tf.nn.sigmoid(z2 + weights['b2'])
         return out
-
 
     # Define weight matrices for the discriminator
     # Note: Input will always be `x_size` and output will always be 1
-    weights_D = {'w1': tf.Variable(create_weights((x_size, 1)))}
+    weights_D = {
+        'w1': create_weights((x_size, h_size)),
+        'b1': tf.Variable(tf.zeros(shape=[h_size])),
+        'w2': create_weights((h_size, 1)),
+        'b2': tf.Variable(tf.zeros(shape=[1]))
+    }
 
     def discriminator(x, weights):
-        out = tf.matmul(x, weights['w1'])
+        z1 = tf.matmul(x, weights['w1'])
+        h1 = tf.nn.relu(z1 + weights['b1'])
 
-        # Return model and weight matrices
+        z2 = tf.matmul(h1, weights['w2'])
+        out = z2 + weights['b2']
+
         return out
 
     #
@@ -77,8 +104,12 @@ def task3():
     mnist = helpers.load_mnist_tf('./mnist')
 
     # Define model entry-points (Z - generator, X - discriminator)
-    Z = tf.placeholder(tf.float32, shape=(None, z_size))
-    X = tf.placeholder(tf.float32, shape=(None, x_size))
+    Z = tf.placeholder(
+        tf.float32,
+        shape=(None, z_size))
+    X = tf.placeholder(
+        tf.float32,
+        shape=(None, x_size))
 
     # Define the different components of a GAN
     sample = generator(Z, weights_G)
@@ -91,9 +122,10 @@ def task3():
 
     # Specify that we will use RMSProp (one optimiser for each model)
     optimiser_G = tf.train.RMSPropOptimizer(lr).minimize(error_G,
-        var_list=weights_G.values())
+                                                         var_list=weights_G.values())
     optimiser_D = tf.train.RMSPropOptimizer(lr).minimize(-error_D,
-        var_list=weights_D.values())
+                                                         var_list=weights_D.values(),
+                                                         global_step=batch)
 
     # Generate Op that initialises global variables in the graph
     init = tf.global_variables_initializer()
@@ -122,18 +154,20 @@ def task3():
 
             # Print out some information every nth iteration
             if epoch % 100 == 0:
+                # print(sess.run(real_hat, feed_dict={X: X_batch})[0])
+                # print("w1:",sess.run(weights_D['w1']))
                 err_G = sess.run(error_G, feed_dict={Z: z_sampler(batch_size, z_size)})
                 err_D = sess.run(error_D, feed_dict={Z: z_sampler(batch_size, z_size),
                                                      X: X_batch})
-                print('Epoch: ', epoch)
-                print('\t Generator error:\t {:.4f}'.format(err_G))
-                print('\t Discriminator error:\t {:.4f}'.format(err_D))
+                print('Epoch: ', epoch, 'lr ', sess.run(lr))
+                print('\t Generator error:\t     {:.7f}'.format(err_G))
+                print('\t Discriminator error:\t {:.7f}'.format(err_D))
 
             # Plot the image generated from 64 different samples to a directory
             if path_to_images and epoch % 1000 == 0:
                 samples = sess.run(sample, feed_dict={Z: z_sampler(64, z_size)})
 
                 figure = helpers.plot_samples(samples)
-                plt.savefig('{}/{}.png'.format(path_to_images, str(epoch)),
+                plt.savefig('{}/{}.png'.format(path_to_images, str(epoch).zfill(10)),
                             bbox_inches='tight')
                 plt.close()
