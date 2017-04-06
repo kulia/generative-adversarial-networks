@@ -16,8 +16,40 @@ import helpers
 import matplotlib.pyplot as plt
 
 path_to_images = '../report_src/figures/wgan/'
+path_to_figure = path_to_images
+var_latex_path = '../report_src/variables/'
+
 
 def task3():
+    error_D, error_G = generative_adversarial_networks()
+    plot_error_D_and_G(error_D, error_G)
+
+def plot_error_D_and_G(error_D, error_G):
+    error_D = 100 * error_D
+    error_G = 1 - error_G
+    error_G = 100 * error_G
+
+    fig = plt.figure()
+    ax1 = plt.subplot2grid((1, 1), (0, 0))
+
+    batch_size_test = 64
+
+    epocs = np.arange(len(error_D))
+    ax1.plot(epocs, error_D, c='k', label='Error D')
+    ax1.plot(batch_size_test * np.arange(len(error_G)), error_G, c='r', label='Error G')
+    ax1.legend(prop={'family': 'Times'}, loc='lower left')
+
+    ax1.set_xlim([0, len(error_D)])
+
+    # plt.title('Learning curve')
+    plt.ylabel('Cross-entropy error [\%]')
+    plt.xlabel('Number of epochs')
+
+    plt.subplots_adjust(left=0.13, right=0.95, top=0.92, bottom=0.16)
+
+    plt.savefig(path_to_figure + 'cross_entropy_error.pdf', format='pdf', dpi=1000)
+
+def generative_adversarial_networks():
     # You might want to alter the learning rate, number of epochs, and batch size
     batch = tf.Variable(0)
     lr = tf.train.exponential_decay(
@@ -129,6 +161,9 @@ def task3():
     # Generate Op that initialises global variables in the graph
     init = tf.global_variables_initializer()
 
+    error_D_array = np.array([])
+    error_G_array = np.array([])
+
     with tf.Session() as sess:
         # Initialise variables and start the session
         sess.run(init)
@@ -159,6 +194,9 @@ def task3():
                 print('\t Generator error:\t     {:.7f}'.format(err_G))
                 print('\t Discriminator error:\t {:.7f}'.format(err_D))
 
+                error_D_array = np.append(error_D_array, err_D)
+                error_G_array = np.append(error_G_array, err_G)
+
             # Plot the image generated from 64 different samples to a directory
             if path_to_images and epoch % 1000 == 0:
                 samples = sess.run(sample, feed_dict={Z: z_sampler(64, z_size)})
@@ -167,4 +205,6 @@ def task3():
                 plt.savefig('{}/{}.png'.format(path_to_images, str(epoch).zfill(10)),
                             bbox_inches='tight')
                 plt.close()
+
+        return error_D_array, error_G_array
 

@@ -45,10 +45,10 @@ def visualize_results(learning_curve, testing_curve):
     ax1.set_xlim([0, len(learning_curve)])
 
     # plt.title('Learning curve')
-    plt.ylabel('Cross-entropy error [\%]')
+    plt.ylabel('Cross-entropy error [%]')
     plt.xlabel('Number of epochs')
 
-    plt.subplots_adjust(left=0.13, right=0.95, top=0.92, bottom=0.16)
+    plt.subplots_adjust(left=0.16, right=0.95, top=0.92, bottom=0.16)
 
     plt.savefig(path_to_figure + 'cross_entropy_error.pdf', format='pdf', dpi=1000)
 
