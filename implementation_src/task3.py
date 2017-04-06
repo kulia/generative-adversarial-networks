@@ -26,26 +26,25 @@ def task3():
 
 def plot_error_D_and_G(error_D, error_G):
     error_D = 100 * error_D
-    error_G = 1 - error_G
     error_G = 100 * error_G
 
     fig = plt.figure()
     ax1 = plt.subplot2grid((1, 1), (0, 0))
 
-    batch_size_test = 64
+    batch_size_test = 64*1000
 
     epocs = np.arange(len(error_D))
-    ax1.plot(epocs, error_D, c='k', label='Error D')
-    ax1.plot(batch_size_test * np.arange(len(error_G)), error_G, c='r', label='Error G')
-    ax1.legend(prop={'family': 'Times'}, loc='lower left')
+    ax1.plot(100 * np.arange(len(error_D)), error_D, c='k', label='Error D')
+    ax1.plot(100 * np.arange(len(error_G)), error_G, c='r', label='Error G')
+    ax1.legend(prop={'family': 'Times'})
 
-    ax1.set_xlim([0, len(error_D)])
+    ax1.set_xlim([0, 100 * len(error_D)])
 
     # plt.title('Learning curve')
-    plt.ylabel('Cross-entropy error [\%]')
+    plt.ylabel('Cross-entropy error [%]')
     plt.xlabel('Number of epochs')
 
-    plt.subplots_adjust(left=0.13, right=0.95, top=0.92, bottom=0.16)
+    plt.subplots_adjust(left=0.16, right=0.95, top=0.92, bottom=0.16)
 
     plt.savefig(path_to_figure + 'cross_entropy_error.pdf', format='pdf', dpi=1000)
 
@@ -58,7 +57,7 @@ def generative_adversarial_networks():
         10000,  # Decay step.
         0.99,  # Decay rate.
         staircase=True)
-    nb_epochs = 40000
+    nb_epochs = 5000
     batch_size = 64
 
     z_size = 10
@@ -198,13 +197,13 @@ def generative_adversarial_networks():
                 error_G_array = np.append(error_G_array, err_G)
 
             # Plot the image generated from 64 different samples to a directory
-            if path_to_images and epoch % 1000 == 0:
-                samples = sess.run(sample, feed_dict={Z: z_sampler(64, z_size)})
-
-                figure = helpers.plot_samples(samples)
-                plt.savefig('{}/{}.png'.format(path_to_images, str(epoch).zfill(10)),
-                            bbox_inches='tight')
-                plt.close()
+            # if path_to_images and epoch % 10000 == 0:
+            #     samples = sess.run(sample, feed_dict={Z: z_sampler(64, z_size)})
+            #
+            #     figure = helpers.plot_samples(samples)
+            #     plt.savefig('{}/{}.png'.format(path_to_images, str(epoch).zfill(10)),
+            #                 bbox_inches='tight')
+            #     plt.close()
 
         return error_D_array, error_G_array
 
