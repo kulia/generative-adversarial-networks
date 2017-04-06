@@ -13,6 +13,8 @@ from matplotlib import cm
 from scipy.interpolate import griddata
 import scipy.ndimage
 
+import matplotlib
+
 
 def load_data(train_path, test_path):
     """Load and return the classification dataset from assignment 4.

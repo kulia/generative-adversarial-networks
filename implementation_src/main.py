@@ -1,6 +1,7 @@
 from task1d import task1d
 from tutorial import tutorial
 from task2 import task2
+from task3 import task3
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
@@ -13,6 +14,7 @@ if __name__ == '__main__':
 
     # task1d()
     # tutorial()
-    task2()
+    # task2()
+    task3()
 
     plt.show()
